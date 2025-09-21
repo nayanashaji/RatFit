@@ -9,6 +9,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/signup", async (req, res) => {
     try {
       const userData = insertUserSchema.parse(req.body);
+      // Ensure awayGymIds is always an array
+      userData.awayGymIds = userData.awayGymIds ?? [];
+      
       const existingUser = await storage.getUserByUsername(userData.username);
       
       if (existingUser) {
@@ -30,6 +33,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const checkinData = insertCheckinSchema.parse(req.body);
       
+      // Validate user has access to this gym
+      const user = await storage.getUser(checkinData.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const allowedGymIds = [user.homeGymId, ...(user.awayGymIds ?? [])];
+      if (!allowedGymIds.includes(checkinData.gymId)) {
+        return res.status(403).json({ message: "You don't have access to this gym" });
+      }
+      
+      // Validate gym exists
+      const gym = await storage.getGym(checkinData.gymId);
+      if (!gym) {
+        return res.status(404).json({ message: "Gym not found" });
+      }
+      
       // Create checkin record
       const checkin = await storage.createCheckin(checkinData);
       
@@ -37,11 +57,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.incrementGymCheckins(checkinData.gymId);
       
       // Update user streak
-      const user = await storage.getUser(checkinData.userId);
-      if (user) {
-        const newStreak = user.streak + 1;
-        await storage.updateUserStreak(checkinData.userId, newStreak);
-      }
+      const newStreak = user.streak + 1;
+      await storage.updateUserStreak(checkinData.userId, newStreak);
 
       res.json({ success: true, checkin });
     } catch (error) {
@@ -56,6 +73,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/book", async (req, res) => {
     try {
       const bookingData = insertBookingSchema.parse(req.body);
+      
+      // Validate user has access to this gym
+      const user = await storage.getUser(bookingData.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const allowedGymIds = [user.homeGymId, ...(user.awayGymIds ?? [])];
+      if (!allowedGymIds.includes(bookingData.gymId)) {
+        return res.status(403).json({ message: "You don't have access to this gym" });
+      }
+      
+      // Validate gym exists
+      const gym = await storage.getGym(bookingData.gymId);
+      if (!gym) {
+        return res.status(404).json({ message: "Gym not found" });
+      }
+      
       const booking = await storage.createBooking(bookingData);
       res.json({ success: true, booking });
     } catch (error) {
@@ -96,13 +131,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const homeGym = await storage.getGym(user.homeGymId);
-      const awayGym = await storage.getGym(user.awayGymId);
+      const awayGyms = await storage.getGymsByIds(user.awayGymIds ?? []);
       const recentCheckins = await storage.getUserCheckins(user.id);
 
       res.json({ 
         user,
         homeGym,
-        awayGym,
+        awayGyms,
         recentActivity: recentCheckins.slice(-5).reverse()
       });
     } catch (error) {
