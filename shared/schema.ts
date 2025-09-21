@@ -7,7 +7,7 @@ export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
   homeGymId: varchar("home_gym_id").notNull(),
-  awayGymId: varchar("away_gym_id").notNull(),
+  awayGymIds: varchar("away_gym_ids").array().notNull().default(sql`ARRAY[]::varchar[]`),
   streak: integer("streak").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -40,7 +40,7 @@ export const checkins = pgTable("checkins", {
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   homeGymId: true,
-  awayGymId: true,
+  awayGymIds: true,
 });
 
 export const insertBookingSchema = createInsertSchema(bookings).pick({

@@ -11,6 +11,7 @@ export interface IStorage {
   // Gyms
   getAllGyms(): Promise<Gym[]>;
   getGym(id: string): Promise<Gym | undefined>;
+  getGymsByIds(ids: string[]): Promise<Gym[]>;
   incrementGymCheckins(gymId: string): Promise<void>;
   
   // Bookings
@@ -137,6 +138,10 @@ export class MemStorage implements IStorage {
 
   async getGym(id: string): Promise<Gym | undefined> {
     return this.gyms.get(id);
+  }
+
+  async getGymsByIds(ids: string[]): Promise<Gym[]> {
+    return ids.map(id => this.gyms.get(id)).filter((gym): gym is Gym => gym !== undefined);
   }
 
   async incrementGymCheckins(gymId: string): Promise<void> {
