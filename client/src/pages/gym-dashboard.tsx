@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 export default function GymDashboardPage() {
@@ -9,9 +8,9 @@ export default function GymDashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-muted py-8">
-        <div className="max-w-6xl mx-auto space-y-8">
-          <div className="text-center">Loading gym data...</div>
+      <div className="page-container">
+        <div className="content-container">
+          <div className="loading">Loading gym data...</div>
         </div>
       </div>
     );
@@ -24,48 +23,61 @@ export default function GymDashboardPage() {
   })) || [];
 
   return (
-    <div className="min-h-screen bg-muted py-8">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Gym Dashboard</h1>
-          <p className="text-muted-foreground">Analytics and insights for gym partners</p>
+    <div className="page-container">
+      <div className="content-container">
+        <div className="text-center mb-16">
+          <h1 style={{ fontSize: '32px', fontWeight: '400', color: '#202124', marginBottom: '8px' }}>
+            Gym Dashboard
+          </h1>
+          <p style={{ fontSize: '16px', color: '#5f6368' }}>
+            Analytics and insights for gym partners
+          </p>
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <div className="text-3xl font-bold text-primary mb-2" data-testid="stat-total-checkins">
+        <div className="grid grid-3" style={{ marginBottom: '24px' }}>
+          <div className="card text-center">
+            <div className="card-content">
+              <div 
+                style={{ fontSize: '32px', fontWeight: '700', color: '#4285f4', marginBottom: '8px' }}
+                data-testid="stat-total-checkins"
+              >
                 {gymsData?.stats?.totalCheckins || 0}
               </div>
-              <p className="text-muted-foreground">Total Check-ins</p>
-            </CardContent>
-          </Card>
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <div className="text-3xl font-bold text-secondary mb-2" data-testid="stat-active-users">
+              <p style={{ color: '#5f6368', margin: '0' }}>Total Check-ins</p>
+            </div>
+          </div>
+          <div className="card text-center">
+            <div className="card-content">
+              <div 
+                style={{ fontSize: '32px', fontWeight: '700', color: '#34a853', marginBottom: '8px' }}
+                data-testid="stat-active-users"
+              >
                 {gymsData?.stats?.activeUsers || 0}
               </div>
-              <p className="text-muted-foreground">Active Users</p>
-            </CardContent>
-          </Card>
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <div className="text-3xl font-bold text-accent mb-2" data-testid="stat-total-revenue">
+              <p style={{ color: '#5f6368', margin: '0' }}>Active Users</p>
+            </div>
+          </div>
+          <div className="card text-center">
+            <div className="card-content">
+              <div 
+                style={{ fontSize: '32px', fontWeight: '700', color: '#fbbc04', marginBottom: '8px' }}
+                data-testid="stat-total-revenue"
+              >
                 ${gymsData?.stats?.totalRevenue || 0}
               </div>
-              <p className="text-muted-foreground">Revenue</p>
-            </CardContent>
-          </Card>
+              <p style={{ color: '#5f6368', margin: '0' }}>Revenue</p>
+            </div>
+          </div>
         </div>
 
         {/* Chart Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Check-ins by Gym</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-80">
+        <div className="card" style={{ marginBottom: '24px' }}>
+          <div className="card-header">
+            <h2 className="card-title">Check-ins by Gym</h2>
+          </div>
+          <div className="card-content">
+            <div className="chart-container">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -78,59 +90,65 @@ export default function GymDashboardPage() {
                       name === 'checkins' ? 'Check-ins' : 'Revenue'
                     ]}
                   />
-                  <Bar dataKey="checkins" fill="hsl(213 94% 68%)" name="checkins" />
+                  <Bar dataKey="checkins" fill="#4285f4" name="checkins" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Gym List */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Gym Performance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
+        <div className="card">
+          <div className="card-header">
+            <h2 className="card-title">Gym Performance</h2>
+          </div>
+          <div className="card-content">
+            <div className="table-container">
+              <table className="google-table">
                 <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 font-medium text-foreground">Gym Name</th>
-                    <th className="text-left py-3 px-4 font-medium text-foreground">Check-ins</th>
-                    <th className="text-left py-3 px-4 font-medium text-foreground">Revenue</th>
-                    <th className="text-left py-3 px-4 font-medium text-foreground">Status</th>
+                  <tr>
+                    <th>Gym Name</th>
+                    <th>Check-ins</th>
+                    <th>Revenue</th>
+                    <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {gymsData?.gyms?.map((gym: any) => (
                     <tr 
                       key={gym.id} 
-                      className="border-b border-border hover:bg-muted/50 transition-colors"
                       data-testid={`gym-row-${gym.id}`}
                     >
-                      <td className="py-3 px-4">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                            <span className="text-white text-xs font-bold">
-                              {gym.name.split(' ').map((word: string) => word[0]).join('').substring(0, 2)}
-                            </span>
+                      <td>
+                        <div className="flex flex-gap">
+                          <div 
+                            style={{
+                              width: '32px',
+                              height: '32px',
+                              background: '#4285f4',
+                              borderRadius: '50%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: 'white',
+                              fontSize: '12px',
+                              fontWeight: '700'
+                            }}
+                          >
+                            {gym.name.split(' ').map((word: string) => word[0]).join('').substring(0, 2)}
                           </div>
-                          <span className="font-medium text-foreground">{gym.name}</span>
+                          <span style={{ fontWeight: '500', color: '#202124' }}>{gym.name}</span>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-foreground" data-testid={`gym-checkins-${gym.id}`}>
+                      <td data-testid={`gym-checkins-${gym.id}`}>
                         {gym.checkins}
                       </td>
-                      <td className="py-3 px-4 text-foreground" data-testid={`gym-revenue-${gym.id}`}>
+                      <td data-testid={`gym-revenue-${gym.id}`}>
                         ${gym.revenue}
                       </td>
-                      <td className="py-3 px-4">
+                      <td>
                         <span 
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            gym.isRatFitAssured 
-                              ? 'bg-accent text-accent-foreground' 
-                              : 'bg-muted text-muted-foreground'
-                          }`}
+                          className={`badge ${gym.isRatFitAssured ? 'badge-assured' : 'badge-standard'}`}
                           data-testid={`gym-status-${gym.id}`}
                         >
                           {gym.isRatFitAssured ? 'RatFit Assured' : 'Standard'}
@@ -141,8 +159,8 @@ export default function GymDashboardPage() {
                 </tbody>
               </table>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

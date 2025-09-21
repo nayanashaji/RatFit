@@ -157,7 +157,7 @@ export default function SignupPage() {
         </form>
 
         <div className="text-center mt-24" style={{ fontSize: '14px', color: '#5f6368' }}>
-          Already have an account? Sign in to RatFit
+          Already have an account? Sign in to continue
         </div>
       </div>
     </div>

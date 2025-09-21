@@ -1,8 +1,5 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import QRCode from "qrcode";
 
 export default function QRCheckinPage() {
@@ -34,115 +31,139 @@ export default function QRCheckinPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-muted py-8">
-        <div className="max-w-2xl mx-auto space-y-8">
-          <div className="text-center">Loading gyms...</div>
+      <div className="page-container">
+        <div className="content-container">
+          <div className="loading">Loading gyms...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-muted py-8">
-      <div className="max-w-2xl mx-auto space-y-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-foreground mb-2">QR Check-in</h1>
-          <p className="text-muted-foreground">Scan the gym's QR code to check in</p>
+    <div className="page-container">
+      <div className="content-container">
+        <div className="text-center mb-16">
+          <h1 style={{ fontSize: '32px', fontWeight: '400', color: '#202124', marginBottom: '8px' }}>
+            QR Check-in
+          </h1>
+          <p style={{ fontSize: '16px', color: '#5f6368' }}>
+            Scan the gym's QR code to check in
+          </p>
         </div>
 
         {/* QR Code Display */}
         {selectedGym && (
-          <Card>
-            <CardContent className="pt-8">
-              <div className="text-center space-y-6">
-                <div className="mx-auto w-48 h-48 border border-border rounded-lg flex items-center justify-center bg-white">
-                  {qrCodeUrl ? (
-                    <img 
-                      src={qrCodeUrl} 
-                      alt="QR Code" 
-                      className="w-full h-full object-contain p-4"
-                      data-testid="qr-code-image"
-                    />
-                  ) : (
-                    <div className="text-muted-foreground">Generating QR code...</div>
-                  )}
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-foreground">
-                    {selectedGym.name}
-                  </h3>
-                  <p className="text-muted-foreground">Point your camera at this QR code</p>
-                </div>
-                <Button
-                  onClick={handleQRScan}
-                  className="floating-action"
-                  data-testid="button-scan-qr"
-                >
-                  Scan QR Code
-                </Button>
+          <div className="card google-card text-center" style={{ marginBottom: '24px' }}>
+            <div className="qr-container">
+              <div className="qr-code">
+                {qrCodeUrl ? (
+                  <img 
+                    src={qrCodeUrl} 
+                    alt="QR Code" 
+                    className="qr-code img"
+                    data-testid="qr-code-image"
+                  />
+                ) : (
+                  <div style={{ color: '#5f6368' }}>Generating QR code...</div>
+                )}
               </div>
-            </CardContent>
-          </Card>
+              <div>
+                <h3 style={{ fontSize: '18px', fontWeight: '500', color: '#202124', marginBottom: '8px' }}>
+                  {selectedGym.name}
+                </h3>
+                <p style={{ fontSize: '14px', color: '#5f6368', marginBottom: '24px' }}>
+                  Point your camera at this QR code
+                </p>
+              </div>
+              <button
+                onClick={handleQRScan}
+                className="google-button"
+                data-testid="button-scan-qr"
+              >
+                Scan QR Code
+              </button>
+            </div>
+          </div>
         )}
 
         {/* Available Gyms */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Available Gyms</CardTitle>
-            <CardDescription>Select a gym to generate its QR code</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4">
+        <div className="card">
+          <div className="card-header">
+            <h2 className="card-title">Available Gyms</h2>
+            <p className="card-subtitle">Select a gym to generate its QR code</p>
+          </div>
+          <div className="card-content">
+            <div className="grid">
               {gymsData?.gyms?.map((gym: any) => (
                 <div
                   key={gym.id}
-                  className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-colors hover:bg-muted/50 ${
-                    selectedGym?.id === gym.id ? 'border-primary bg-primary/5' : 'border-border'
-                  }`}
+                  className={`gym-card ${selectedGym?.id === gym.id ? 'selected' : ''}`}
                   onClick={() => handleGymSelect(gym)}
                   data-testid={`gym-card-${gym.id}`}
+                  style={{
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    border: selectedGym?.id === gym.id ? '2px solid #4285f4' : '1px solid #dadce0',
+                    background: selectedGym?.id === gym.id ? '#f8f9ff' : 'white'
+                  }}
                 >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">
-                        {gym.name.split(' ').map((word: string) => word[0]).join('').substring(0, 2)}
-                      </span>
+                  <div className="gym-header">
+                    <div 
+                      className="gym-icon"
+                      style={{
+                        background: '#4285f4',
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white',
+                        fontSize: '14px',
+                        fontWeight: '700'
+                      }}
+                    >
+                      {gym.name.split(' ').map((word: string) => word[0]).join('').substring(0, 2)}
                     </div>
-                    <div>
-                      <h4 className="font-medium text-foreground">{gym.name}</h4>
-                      <p className="text-sm text-muted-foreground">{gym.location}</p>
+                    <div className="gym-info">
+                      <h4 style={{ fontSize: '16px', fontWeight: '500', color: '#202124', marginBottom: '4px' }}>
+                        {gym.name}
+                      </h4>
+                      <p style={{ fontSize: '14px', color: '#5f6368', margin: '0' }}>
+                        {gym.location}
+                      </p>
                     </div>
                   </div>
                   {gym.isRatFitAssured && (
-                    <div className="text-xs bg-accent text-accent-foreground px-2 py-1 rounded-full font-medium">
+                    <div className="badge badge-assured" style={{ marginTop: '12px' }}>
                       RatFit Assured
                     </div>
                   )}
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Success Modal */}
-        <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
-          <DialogContent className="text-center" data-testid="success-modal">
-            <DialogHeader>
-              <div className="text-6xl mb-4">✅</div>
-              <DialogTitle className="text-xl">Check-in Successful!</DialogTitle>
-              <DialogDescription>
+        {showSuccessModal && (
+          <div className="modal-overlay" data-testid="success-modal">
+            <div className="modal-content">
+              <div className="modal-icon">✅</div>
+              <h2 className="modal-title">Check-in Successful!</h2>
+              <p className="modal-description">
                 Welcome to {selectedGym?.name}
-              </DialogDescription>
-            </DialogHeader>
-            <Button 
-              onClick={() => setShowSuccessModal(false)}
-              className="mt-4"
-              data-testid="button-close-modal"
-            >
-              Great!
-            </Button>
-          </DialogContent>
-        </Dialog>
+              </p>
+              <button 
+                onClick={() => setShowSuccessModal(false)}
+                className="google-button"
+                data-testid="button-close-modal"
+              >
+                Great!
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
